@@ -13,8 +13,8 @@
 	box-sizing: border-box;
 }
 li {
-	line-height: 50px;
-	height: 50px; //to be handled dynamically w/ const LINE_HEIGHT
+	line-height: 20px;
+	height: 20px; //to be handled dynamically w/ const LINE_HEIGHT
 }
 ul {
 	display: flex;
@@ -34,7 +34,8 @@ ul {
     <footer>
     </footer>
 	<script type="module">
-const LINE_HEIGHT = 50;
+const LINE_HEIGHT = 20;
+const RADIUS = 5;
 function createArray(length,prefix) {
 	let out = [];
 	for (let i=0; i<length; i++) {
@@ -57,7 +58,7 @@ function drawPoints(points,color,context) {
 	context.fillStyle = color;
 	context.beginPath();
 	points.map(e => {
-		context.arc(e.x, e.y, 5, 0, 2 * Math.PI);
+		context.arc(e.x, e.y, RADIUS, 0, 2*Math.PI);
 	});
 	context.fill();
 }
@@ -69,8 +70,43 @@ function drawBezier(input,output,context) {
 	context.bezierCurveTo(controls[0].x, controls[0].y, controls[1].x, controls[1].y, output.x, output.y);
 	context.stroke();
 }
+function findElementInParent(target) {
+	return [...target.parentElement.childNodes].indexOf(target);
+}
+function setOutput(target,callback) {
+	if (internal_state !== false) {
+		if (typeof target === "object") {
+		target = findElementInParent(target);
+		}
+		drawBezier(inputs[internal_state],outputs[target],context2d);
+		callback(internal_state,target);
+		routes.push([internal_state,target]);
+		internal_state = false;
+	}
+}
+function findPoint(points,coordinates) {
+	return points.indexOf(points.find(i => {
+		let rangeX = [i.x-RADIUS,i.x+RADIUS];
+		let rangeY = [i.y-RADIUS,i.y+RADIUS];
+		return (((coordinates.x >= rangeX[0])
+			&& (coordinates.x <= rangeX[1])) 
+			&& ((coordinates.y >= rangeY[0])
+			&& (coordinates.y <= rangeY[1])));
+	}));
+}
+function findPointOnCanvas(event,canvas) {
+	let coords = { x:event.pageX - canvas.offsetLeft, y:event.pageY - canvas.offsetTop };
+	return [findPoint(inputs,coords),findPoint(outputs,coords)];
+}
+function drawAgain() {
+	context2d.clearRect(0, 0, canvas.width, canvas.height);
+	drawPoints(inputs,"blue",context2d);
+	drawPoints(outputs,"blue",context2d);
+	routes.map(e => drawBezier(inputs[e[0]],outputs[e[1]],context2d));
+}
+let routes = [];
 let internal_state = false;
-let inputs = createArray(10,"in");
+let inputs = createArray(15,"in");
 let outputs = createArray(10,"out");
 let ul_in = document.createElement("ul");
 let ul_out = document.createElement("ul");
@@ -83,17 +119,40 @@ fillList(ul_in,inputs);
 fillList(ul_out,outputs);
 inputs = computePoints(inputs,canvas,5);
 outputs = computePoints(outputs,canvas,295);
-canvas = canvas.getContext("2d");
-drawPoints(inputs,"red",canvas);
-drawPoints(outputs,"green",canvas);
-ul_in.addEventListener("click",(e) => {
-	internal_state = [...e.target.parentElement.childNodes].indexOf(e.target);
-});
-ul_out.addEventListener("click",(e) => {
-	if (internal_state !== false) {
-		drawBezier(inputs[internal_state],outputs[[...e.target.parentElement.childNodes].indexOf(e.target)],canvas);
-		internal_state = false;
+let context2d = canvas.getContext("2d");
+drawPoints(inputs,"blue",context2d);
+drawPoints(outputs,"blue",context2d);
+ul_in.addEventListener("click",(e) => {	internal_state = findElementInParent(e.target); });
+ul_out.addEventListener("click",(e) => { setOutput(e.target,console.log); });
+canvas.addEventListener("click",(e) => {
+	let point = findPointOnCanvas(e,canvas);
+	if (point[0] != -1) {
+		internal_state = point[0];
+	} else if (point[1] != -1) {
+		setOutput(point[1],console.log);
 	}
+});
+canvas.addEventListener("contextmenu",(e) => {
+	e.preventDefault();
+	let point = findPointOnCanvas(e,canvas);
+	point.map((e,i) => {
+		if (e != -1) {
+			routes = routes.filter(e => e[i] != point[i]);
+		}
+	});
+	drawAgain();
+});
+ul_in.addEventListener("contextmenu",(e) => {
+	e.preventDefault();
+	let point = findElementInParent(e.target);
+	routes = routes.filter(e => e[0] != point);
+	drawAgain();
+});
+ul_out.addEventListener("contextmenu",(e) => {
+	e.preventDefault();
+	let point = findElementInParent(e.target);
+	routes = routes.filter(e => e[1] != point);
+	drawAgain();
 });
 	</script>
   </body>
