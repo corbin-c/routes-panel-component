@@ -13,7 +13,8 @@
 	box-sizing: border-box;
 }
 li {
-	height: 20px; //to be handled dynamically w/ const LINE_HEIGHT
+	line-height: 50px;
+	height: 50px; //to be handled dynamically w/ const LINE_HEIGHT
 }
 ul {
 	display: flex;
@@ -33,7 +34,7 @@ ul {
     <footer>
     </footer>
 	<script type="module">
-const LINE_HEIGHT = 20;
+const LINE_HEIGHT = 50;
 function createArray(length,prefix) {
 	let out = [];
 	for (let i=0; i<length; i++) {
@@ -68,6 +69,7 @@ function drawBezier(input,output,context) {
 	context.bezierCurveTo(controls[0].x, controls[0].y, controls[1].x, controls[1].y, output.x, output.y);
 	context.stroke();
 }
+let internal_state = false;
 let inputs = createArray(10,"in");
 let outputs = createArray(10,"out");
 let ul_in = document.createElement("ul");
@@ -84,10 +86,15 @@ outputs = computePoints(outputs,canvas,295);
 canvas = canvas.getContext("2d");
 drawPoints(inputs,"red",canvas);
 drawPoints(outputs,"green",canvas);
-drawBezier(inputs[2],outputs[8],canvas);
-drawBezier(inputs[8],outputs[5],canvas);
-drawBezier(inputs[9],outputs[3],canvas);
-drawBezier(inputs[2],outputs[0],canvas);
+ul_in.addEventListener("click",(e) => {
+	internal_state = [...e.target.parentElement.childNodes].indexOf(e.target);
+});
+ul_out.addEventListener("click",(e) => {
+	if (internal_state !== false) {
+		drawBezier(inputs[internal_state],outputs[[...e.target.parentElement.childNodes].indexOf(e.target)],canvas);
+		internal_state = false;
+	}
+});
 	</script>
   </body>
 </html>
