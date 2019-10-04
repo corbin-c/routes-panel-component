@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Canvas / Bezier Curves test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+*
+{
+	margin: 0;
+	padding: 0;
+	font-family: Sans;
+	box-sizing: border-box;
+}
+li {
+	height: 20px; //to be handled dynamically w/ const LINE_HEIGHT
+}
+ul {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	align-items: flex-start;
+	list-style: none;
+}
+	</style>
+  </head>
+  <body>
+    <header><h1>Bezier</h1></header>
+    <main>
+	<div style="display:flex;">
+	</div>
+    </main>
+    <footer>
+    </footer>
+	<script type="module">
+const LINE_HEIGHT = 20;
+function createArray(length,prefix) {
+	let out = [];
+	for (let i=0; i<length; i++) {
+		out.push(prefix+"_"+i)
+	}
+	return out;
+}
+function fillList(ul_elt,array) {
+	array.map(e => {
+		let li = document.createElement("li");
+		li.innerHTML = e;
+		ul_elt.append(li);
+	});
+}
+function computePoints(array,canvas_elt,base_x) {
+	let y_span = canvas_elt.height/array.length;
+	return array.map((e,i) => ({x:base_x,y:0.5*y_span+i*y_span}));
+}
+function drawPoints(points,color,context) {
+	context.fillStyle = color;
+	context.beginPath();
+	points.map(e => {
+		context.arc(e.x, e.y, 5, 0, 2 * Math.PI);
+	});
+	context.fill();
+}
+function drawBezier(input,output,context) {
+	let controls = [{x:input.x+(output.x-input.x)/2,y:input.y+0.25*(output.y-input.y)},
+					{x:input.x+(output.x-input.x)/2,y:input.y+0.75*(output.y-input.y)}];
+	context.beginPath();
+	context.moveTo(input.x, input.y);
+	context.bezierCurveTo(controls[0].x, controls[0].y, controls[1].x, controls[1].y, output.x, output.y);
+	context.stroke();
+}
+let inputs = createArray(10,"in");
+let outputs = createArray(10,"out");
+let ul_in = document.createElement("ul");
+let ul_out = document.createElement("ul");
+let canvas = document.createElement("canvas");
+document.querySelector("div").append(ul_in);
+canvas.height = LINE_HEIGHT*(Math.max(inputs.length,outputs.length));
+document.querySelector("div").append(canvas);
+document.querySelector("div").append(ul_out);
+fillList(ul_in,inputs);
+fillList(ul_out,outputs);
+inputs = computePoints(inputs,canvas,5);
+outputs = computePoints(outputs,canvas,295);
+canvas = canvas.getContext("2d");
+drawPoints(inputs,"red",canvas);
+drawPoints(outputs,"green",canvas);
+drawBezier(inputs[2],outputs[8],canvas);
+drawBezier(inputs[8],outputs[5],canvas);
+drawBezier(inputs[9],outputs[3],canvas);
+drawBezier(inputs[2],outputs[0],canvas);
+	</script>
+  </body>
+</html>
