@@ -5,8 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-*
-{
+* {
   margin: 0;
   padding: 0;
   font-family: Sans;
@@ -14,7 +13,11 @@
 }
 li {
   line-height: 20px;
+  width: 100%;
   height: 20px; //to be handled dynamically w/ const LINE_HEIGHT
+}
+.inputs {
+  text-align: right;
 }
 ul {
   display: flex;
@@ -28,54 +31,14 @@ ul {
   <body>
     <header><h1>Bezier</h1></header>
     <main>
-  <div style="display:flex;">
-  </div>
     </main>
     <footer>
     </footer>
   <script type="module">
 const LINE_HEIGHT = 20;
 const RADIUS = 5;
-function createArray(length,prefix) {
-  let out = [];
-  for (let i=0; i<length; i++) {
-    out.push(prefix+"_"+i)
-  }
-  return out;
-}
-function fillList(ul_elt,array) {
-  array.map(e => {
-    let li = document.createElement("li");
-    li.innerHTML = e;
-    ul_elt.append(li);
-  });
-}
-function computePoints(array,canvas_elt,base_x) {
-  let y_span = canvas_elt.height/array.length;
-  return array.map((e,i) => ({x:base_x,y:0.5*y_span+i*y_span}));
-}
-function drawPoints(points,color,context) {
-  context.fillStyle = color;
-  context.beginPath();
-  points.map(e => {
-    context.arc(e.x, e.y, RADIUS, 0, 2*Math.PI);
-  });
-  context.fill();
-}
-function drawBezier(input,output,context) {
-  let controls = [
-    {x:input.x+(output.x-input.x)/2,y:input.y+0.25*(output.y-input.y)},
-    {x:input.x+(output.x-input.x)/2,y:input.y+0.75*(output.y-input.y)}
-  ];
-  context.beginPath();
-  context.moveTo(input.x, input.y);
-  context.bezierCurveTo(
-    controls[0].x, controls[0].y,
-    controls[1].x, controls[1].y,
-    output.x, output.y
-  );
-  context.stroke();
-}
+const COLOR = "blue";
+
 function findElementInParent(target) {
   return [...target.parentElement.childNodes].indexOf(target);
 }
@@ -107,31 +70,78 @@ function findPointOnCanvas(event,canvas) {
   };
   return [findPoint(inputs,coords),findPoint(outputs,coords)];
 }
-function drawAgain() {
-  context2d.clearRect(0, 0, canvas.width, canvas.height);
-  drawPoints(inputs,"blue",context2d);
-  drawPoints(outputs,"blue",context2d);
-  routes.map(e => drawBezier(inputs[e[0]],outputs[e[1]],context2d));
-}
-let routes = [];
-let internal_state = false;
-let inputs = createArray(15,"in");
-let outputs = createArray(10,"out");
-let ul_in = document.createElement("ul");
-let ul_out = document.createElement("ul");
-let canvas = document.createElement("canvas");
-document.querySelector("div").append(ul_in);
-canvas.height = LINE_HEIGHT*(Math.max(inputs.length,outputs.length));
-document.querySelector("div").append(canvas);
-document.querySelector("div").append(ul_out);
-fillList(ul_in,inputs);
-fillList(ul_out,outputs);
-inputs = computePoints(inputs,canvas,5);
-outputs = computePoints(outputs,canvas,295);
-let context2d = canvas.getContext("2d");
-drawPoints(inputs,"blue",context2d);
-drawPoints(outputs,"blue",context2d);
-ul_in.addEventListener("click",(e) => {
+
+let Router = class {
+  constructor(in_string,out_string) {
+    this.routes = [];
+    this.internal_state = false;
+    this.canvas = document.createElement("canvas");
+    this.context = this.canvas.getContext("2d");
+    this.inputs = in_string.split(",");
+    this.outputs = out_string.split(",");
+    this.ul_elts = [document.createElement("ul"),document.createElement("ul")];
+    this.container = document.createElement("div");
+    this.container.setAttribute("style","display:flex;");
+    this.ul_elts[0].setAttribute("class","inputs");
+    this.fillLists();
+    this.container.append(this.ul_elts[0]);
+    this.canvas.height =
+      LINE_HEIGHT*(Math.max(this.inputs.length,this.outputs.length));
+    this.container.append(this.canvas);
+    this.container.append(this.ul_elts[1]);
+    this.computePoints();
+    this.drawAgain();
+  }
+  fillLists() {
+    [this.inputs,this.outputs].map((array,i) => { 
+        array.map(e => {
+        let li = document.createElement("li");
+        li.innerHTML = e;
+        this.ul_elts[i].append(li);
+      });
+    });
+  }
+  computePoints() {
+    let compute = (array,base_x) => {
+      let y_span = this.canvas.height/array.length;
+      return array.map((e,i) => ({x:base_x,y:0.5*y_span+i*y_span}));
+    }
+    this.inputs = compute(this.inputs,RADIUS);
+    this.outputs = compute(this.outputs,this.canvas.width-RADIUS);
+  }
+  drawPoints() {
+    this.context.fillStyle = COLOR;
+    [this.inputs,this.outputs].map(f => {
+      this.context.beginPath();
+      f.map(e => {
+        this.context.arc(e.x, e.y, RADIUS, 0, 2*Math.PI);
+      });
+      this.context.fill();
+    });
+  }
+  drawBezier(context) {
+    let controls = [
+      {x:input.x+(output.x-input.x)/2,y:input.y+0.25*(output.y-input.y)},
+      {x:input.x+(output.x-input.x)/2,y:input.y+0.75*(output.y-input.y)}
+    ];
+    this.context.beginPath();
+    this.context.moveTo(input.x, input.y);
+    this.context.bezierCurveTo(
+      controls[0].x, controls[0].y,
+      controls[1].x, controls[1].y,
+      output.x, output.y
+    );
+    this.context.stroke();
+  }
+  drawAgain() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawPoints();
+    this.routes.map(e => this.drawBezier(this.inputs[e[0]],this.outputs[e[1]]));
+  }
+};
+let route = new Router("comma,separated,values","again,comma,separated,values");
+document.querySelector("main").append(route.container);
+/*ul_in.addEventListener("click",(e) => {
   internal_state = findElementInParent(e.target);
 });
 ul_out.addEventListener("click",(e) => {
@@ -166,7 +176,7 @@ ul_out.addEventListener("contextmenu",(e) => {
   let point = findElementInParent(e.target);
   routes = routes.filter(e => e[1] != point);
   drawAgain();
-});
+});*/
   </script>
   </body>
 </html>
