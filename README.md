@@ -44,6 +44,11 @@ tweak the element:
 
 A demo can be find at : https://corbin-c.github.io/routes-panel-component/
 
+It's a simple tool to filter color channels:
+
+![routes-panel color demo](realdemo.png "routes-panel color demo")
+
+
 I don't own the image used in the demo, it's a
 [Wikimedia Commons "Picture of the day"](https://commons.wikimedia.org/wiki/File:Doorgang_in_muur._Locatie,_Chinese_tuin_Het_Verborgen_Rijk_van_Ming._Locatie._Hortus_Haren_01.jpg)
 from user Dominicus Johannes Bergsma.
