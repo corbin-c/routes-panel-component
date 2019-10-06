@@ -8,7 +8,7 @@ function updateRoutes() {
   let channels = (routes_panel.hasAttribute("routes")
     && (routes_panel.getAttribute("routes") != ""))
     ? routesToChannels(routes_panel.getAttribute("routes"))
-    : [[0,0],[1,1],[2,2]];
+    : [];
   drawCanvas(channels);
 }
 function routesToChannels(routes) {
