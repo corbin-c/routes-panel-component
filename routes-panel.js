@@ -32,9 +32,20 @@ class Router extends HTMLElement {
           return [this.inputs.indexOf(route[0]),this.outputs.indexOf(route[1])];
         });
     } catch {
-      console.warn("missing attribute when initiating element");
+      console.warn("missing attribute when initiating routes-panel element");
     }
     //CREATING DOM ELEMENTS
+    this.color = (this.hasAttribute("color"))
+      ? this.getAttribute("color")
+      : COLOR;
+    this.width = ((this.hasAttribute("width")
+      && this.getAttribute("width") > WIDTH))
+      ? this.getAttribute("width")
+      : WIDTH;
+    this.line_height = ((this.hasAttribute("line-height")
+      && this.getAttribute("line-height") > LINE_HEIGHT))
+      ? this.getAttribute("line-height")
+      : LINE_HEIGHT;
     const shadow = this.attachShadow({mode: "open"});
     let style = document.createElement("style");
     style.textContent = `
@@ -46,11 +57,23 @@ class Router extends HTMLElement {
 }
 figure {
   display: flex;
+  flex-flow: row wrap;
+}
+figure * {
+  margin: auto
+  flex: 0 0 auto;
+}
+figcaption {
+  width: 100%;
+  flex: 1 0 auto;
+  text-align: center;
 }
 li {
-  line-height: 20px;
+  line-height: `+this.line_height+`px;
   width: 100%;
-  height: `+LINE_HEIGHT+`px;
+  height: `+this.line_height+`px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 .inputs {
   text-align: right;
@@ -70,12 +93,23 @@ ul {
     this.fillLists();
     this.container.append(this.ul_elts[0]);
     this.canvas.height =
-      LINE_HEIGHT*(Math.max(this.inputs.length,this.outputs.length));
-    this.canvas.width = WIDTH;
+      this.line_height*(Math.max(this.inputs.length,this.outputs.length));
+    this.canvas.width = this.width;
     this.container.append(this.canvas);
     this.container.append(this.ul_elts[1]);
+    if (this.hasAttribute("caption")) {
+      this.caption = document.createElement("figcaption");
+      this.caption.innerText = this.getAttribute("caption");
+      this.container.append(this.caption);
+    }
     shadow.appendChild(style);
     shadow.appendChild(this.container);
+    console.log(this.ul_elts[0].offsetWidth+this.ul_elts[1].offsetWidth);
+    this.container.setAttribute("style","width: "+
+      (this.canvas.width
+      +this.ul_elts[0].offsetWidth
+      +this.ul_elts[1].offsetWidth)
+      +"px;");
     //DRAWING THINGS ON THE CANVAS
     this.computePoints();
     this.drawAgain();
@@ -138,7 +172,7 @@ ul {
     this.outputs = compute(this.outputs,this.canvas.width-RADIUS);
   }
   drawPoints() {
-    this.context.fillStyle = COLOR;
+    this.context.fillStyle = this.color;
     [this.inputs,this.outputs].map(f => {
       this.context.beginPath();
       f.map(e => {
@@ -163,8 +197,8 @@ ul {
   }
   drawAgain() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawPoints();
     this.routes.map(e => this.drawBezier(...this.stateToPoints(e)));
+    this.drawPoints();
   }
   changeState(element,target,callback) {
     if (typeof target === "object") {

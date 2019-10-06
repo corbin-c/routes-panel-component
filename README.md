@@ -35,4 +35,9 @@ inputs and matching outputs are connected by a dash `-`:
 </routes-panel>
 ```
 Routes can be given a default state by setting the `routes` attribute when
-creating the element.
+creating the element. Additionally, 4 other optional attributes may be set to
+tweak the element:
+- `caption` in order to display a small description below the figure. 
+- `color` to change the dots color
+- `width` to define canvas width, in pixels (default: 100)
+- `line-height` to adjust vertical spacing, in pixels (default: 20)
