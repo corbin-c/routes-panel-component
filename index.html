@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Routes-panel custom element demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="demo.css" />
+    <script defer type="module" src="routes-panel.js"></script>
+    <script defer type="module" src="demo.js"></script>
+  </head>
+  <body>
+    <header><h1>Routes-panel custom element demo</h1><script src="../menu.js" id="menujs"></script></header>
+    <main>
+      <p>This is a demo of the <a href="https://github.com/corbin-c/routes-panel-component" title="routes-panel-component by corbin-c on Github">routes-panel component</a>. It illustrates how it can be used as a user input to connect things: In this case, it's about connecting color channels for image manipulation with canvas.</p>
+      <section id="demo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Doorgang_in_muur._Locatie%2C_Chinese_tuin_Het_Verborgen_Rijk_van_Ming._Locatie._Hortus_Haren_01.jpg/800px-Doorgang_in_muur._Locatie%2C_Chinese_tuin_Het_Verborgen_Rijk_van_Ming._Locatie._Hortus_Haren_01.jpg" alt="Image Doorgang in muur. Locatie, Chinese tuin Het Verborgen Rijk van Ming. Locatie. Hortus Haren 01.jpg from Wikimedia Commons, author: Dominicus Johannes Bergsma." crossorigin="anonymous"> 
+        <routes-panel
+          inputs="red,green,blue"
+          outputs="red,green,blue"
+          routes="red-red|green-green|blue-blue"
+          caption="Filter color channels"
+          width="180"
+          line-height="35"
+          ></routes-panel>
+          <canvas></canvas>
+        </section>
+    </main>
+    <footer><a href="https://github.com/corbin-c/routes-panel-component" title="routes-panel-component by corbin-c on Github">View code on Github</a>
+    </footer>
+  </body>
+</html>

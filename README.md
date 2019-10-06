@@ -41,3 +41,8 @@ tweak the element:
 - `color` to change the dots color
 - `width` to define canvas width, in pixels (default: 100)
 - `line-height` to adjust vertical spacing, in pixels (default: 20)
+
+A demo can be find at : [https://corbin-c.github.io/routes-panel-component/]
+I don't own the image used in the demo, it's a
+[Wikimedia Commons "Picture of the day"](https://commons.wikimedia.org/wiki/File:Doorgang_in_muur._Locatie,_Chinese_tuin_Het_Verborgen_Rijk_van_Ming._Locatie._Hortus_Haren_01.jpg)
+from user Dominicus Johannes Bergsma.

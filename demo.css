@@ -1,0 +1,18 @@
+main {
+  display: flex;
+  flex-flow: column;
+}
+main {
+  margin: auto;
+  justify-content: space-evenly;
+}
+#demo {
+  display:flex;
+}
+#demo * {
+  margin: auto;
+}
+#demo img, #demo canvas {
+  width: 33%;
+  height: auto;
+}

@@ -22,6 +22,11 @@ class Router extends HTMLElement {
     //SETTING UP INTERNAL STRUCTURES
     this.routes = [];
     this.state = [false,false];
+    this.routeEvent = new CustomEvent("change", {
+      bubbles: true,
+      cancelable: false,
+      composed: true
+    });
     try {
       this.inputs = this.getAttribute("inputs").split(",");
       this.outputs = this.getAttribute("outputs").split(",");
@@ -34,7 +39,6 @@ class Router extends HTMLElement {
     } catch {
       console.warn("missing attribute when initiating routes-panel element");
     }
-    //CREATING DOM ELEMENTS
     this.color = (this.hasAttribute("color"))
       ? this.getAttribute("color")
       : COLOR;
@@ -46,7 +50,8 @@ class Router extends HTMLElement {
       && this.getAttribute("line-height") > LINE_HEIGHT))
       ? this.getAttribute("line-height")
       : LINE_HEIGHT;
-    const shadow = this.attachShadow({mode: "open"});
+    //CREATING DOM ELEMENTS
+    const shadow = this.attachShadow({mode: "closed"});
     let style = document.createElement("style");
     style.textContent = `
 * {
@@ -104,7 +109,6 @@ ul {
     }
     shadow.appendChild(style);
     shadow.appendChild(this.container);
-    console.log(this.ul_elts[0].offsetWidth+this.ul_elts[1].offsetWidth);
     this.container.setAttribute("style","width: "+
       (this.canvas.width
       +this.ul_elts[0].offsetWidth
@@ -145,6 +149,7 @@ ul {
     this.setAttribute("routes",this.getReadableRoutes()
       .map(e => e.join("-"))
       .join("|"));
+    this.dispatchEvent(this.routeEvent);
   }
   stateToPoints(state) {
     return [this.inputs[state[0]],this.outputs[state[1]]];
