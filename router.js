@@ -1,4 +1,5 @@
 const LINE_HEIGHT = 20;
+const WIDTH = 100;
 const RADIUS = 5;
 const COLOR = "blue";
 
@@ -15,26 +16,56 @@ function findPoint(points,coordinates) {
       && (coordinates.y <= rangeY[1])));
   }));
 }
-let Router = class {
-  constructor(in_string,out_string) {
+class Router extends HTMLElement {
+  constructor() {
+    super();
     //SETTING UP INTERNAL STRUCTURES
     this.routes = [];
     this.state = [false,false];
-    this.inputs = in_string.split(",");
-    this.outputs = out_string.split(",");
+    this.inputs = this.getAttribute("inputs").split(",");
+    this.outputs = this.getAttribute("outputs").split(",");
     //CREATING DOM ELEMENTS
+    const shadow = this.attachShadow({mode: "open"});
+    let style = document.createElement("style");
+    style.textContent = `
+* {
+  margin: 0;
+  padding: 0;
+  font-family: Sans;
+  box-sizing: border-box;
+}
+figure {
+  display: flex;
+}
+li {
+  line-height: 20px;
+  width: 100%;
+  height: `+LINE_HEIGHT+`px;
+}
+.inputs {
+  text-align: right;
+}
+ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  list-style: none;
+}`;
     this.canvas = document.createElement("canvas");
     this.context = this.canvas.getContext("2d");
     this.ul_elts = [document.createElement("ul"),document.createElement("ul")];
-    this.container = document.createElement("div");
-    this.container.setAttribute("style","display:flex;");
+    this.container = document.createElement("figure");
     this.ul_elts[0].setAttribute("class","inputs");
     this.fillLists();
     this.container.append(this.ul_elts[0]);
     this.canvas.height =
       LINE_HEIGHT*(Math.max(this.inputs.length,this.outputs.length));
+    this.canvas.width = WIDTH;
     this.container.append(this.canvas);
     this.container.append(this.ul_elts[1]);
+    shadow.appendChild(style);
+    shadow.appendChild(this.container);
     //DRAWING THINGS ON THE CANVAS
     this.computePoints();
     this.drawAgain();
@@ -42,29 +73,34 @@ let Router = class {
       //ADDING
     this.ul_elts.map((ul,i) => {
       ul.addEventListener("click",(e) => {
-        this.changeState(i,e.target,this.getReadableRoutes);
+        this.changeState(i,e.target,this.setOutputAttributes);
       });
     });
     this.canvas.addEventListener("click",(e) => {
       let point = this.findPointOnCanvas(e);
       point.map((e,i) => {
-        if (e != -1) { this.changeState(i,e,this.getReadableRoutes); }
+        if (e != -1) { this.changeState(i,e,this.setOutputAttributes); }
       })
     });
       //REMOVING
     this.ul_elts.map((ul,i) => {
       ul.addEventListener("contextmenu",(e) => {
         e.preventDefault();
-        this.removeRoute(i,e.target,this.getReadableRoutes);
+        this.removeRoute(i,e.target,this.setOutputAttributes);
       });
     });
     this.canvas.addEventListener("contextmenu",(e) => {
       e.preventDefault();
       let point = this.findPointOnCanvas(e);
       point.map((e,i) => {
-        if (e != -1) { this.removeRoute(i,e,this.getReadableRoutes); }
+        if (e != -1) { this.removeRoute(i,e,this.setOutputAttributes); }
       });
     });
+  }
+  setOutputAttributes() {
+    this.setAttribute("routes",this.getReadableRoutes()
+      .map(e => e.join("-"))
+      .join("|"));
   }
   stateToPoints(state) {
     return [this.inputs[state[0]],this.outputs[state[1]]];
@@ -126,9 +162,10 @@ let Router = class {
     }
     if (this.state[Number(!element)] !== false) {
       this.state[element] = target;
-      if (typeof this.routes.find(e => e == this.state) === "undefined") {
+      if (typeof this.routes.find(e => ((e[0] == this.state[0])
+        && (e[1] == this.state[1]))) === "undefined") {
         this.routes.push(this.state);
-        callback.call(this,true);
+        callback.call(this);
       }
       this.state = [false,false];
       this.drawAgain();
@@ -149,9 +186,8 @@ let Router = class {
     }
     let pre_length = this.routes.length;
     this.routes = this.routes.filter(e => e[element] != target);
-    callback.call(this,true);
+    callback.call(this);
     if (this.routes.lenght != pre_length) { this.drawAgain(); }
   }
 };
-let route = new Router("comma,separated,values","again,comma,separated,values");
-document.querySelector("main").append(route.container);
+customElements.define("routes-panel", Router);
