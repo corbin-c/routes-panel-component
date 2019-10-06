@@ -4,14 +4,16 @@
     <title>Routes-panel custom element demo</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="routes-panel.js" async defer></script>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="demo.css" />
+    <script defer type="module" src="routes-panel.js"></script>
   </head>
   <body>
-    <header><h1>Routes-panel custom element demo</h1></header>
+    <header><h1>Routes-panel custom element demo</h1><script src="../menu.js" id="menujs"></script></header>
     <main>
-      <routes-panel inputs="input1,input2,input3,input4" outputs="out1,out2,out3"></routes-panel>
+      <routes-panel inputs="red,green,blue" outputs="red,green,blue" routes="red-red|green-green|blue-blue"></routes-panel>
     </main>
-    <footer>
+    <footer><a href="https://github.com/corbin-c/routes-panel-component" title="routes-panel-component by corbin-c on Github">View code on Github</a>
     </footer>
   </body>
 </html>

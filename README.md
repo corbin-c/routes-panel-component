@@ -34,3 +34,5 @@ inputs and matching outputs are connected by a dash `-`:
   routes="input4-out2|input1-out3|input2-out1|input4-out1">
 </routes-panel>
 ```
+Routes can be given a default state by setting the `routes` attribute when
+creating the element.

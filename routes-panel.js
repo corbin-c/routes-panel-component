@@ -1,7 +1,7 @@
 const LINE_HEIGHT = 20;
 const WIDTH = 100;
 const RADIUS = 5;
-const COLOR = "blue";
+const COLOR = "#33AAFF";
 
 function findElementInParent(target) {
   return [...target.parentElement.childNodes].indexOf(target);
@@ -22,8 +22,18 @@ class Router extends HTMLElement {
     //SETTING UP INTERNAL STRUCTURES
     this.routes = [];
     this.state = [false,false];
-    this.inputs = this.getAttribute("inputs").split(",");
-    this.outputs = this.getAttribute("outputs").split(",");
+    try {
+      this.inputs = this.getAttribute("inputs").split(",");
+      this.outputs = this.getAttribute("outputs").split(",");
+      this.routes = this.getAttribute("routes")
+        .split("|")
+        .map(e => {
+          let route = e.split("-");
+          return [this.inputs.indexOf(route[0]),this.outputs.indexOf(route[1])];
+        });
+    } catch {
+      console.warn("missing attribute when initiating element");
+    }
     //CREATING DOM ELEMENTS
     const shadow = this.attachShadow({mode: "open"});
     let style = document.createElement("style");
