@@ -29,7 +29,6 @@ function drawCanvas(channels) {
     let channel = i%4;
     if (channel == 3) {
       buffer.map((h,j) => imageData.data[i-channel+j] = h);
-      if (i==523) { console.log(buffer) }
       buffer = [0,0,0];
     } else {
       e = 0;
