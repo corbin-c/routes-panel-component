@@ -65,7 +65,7 @@ figure {
   flex-flow: row wrap;
 }
 figure * {
-  margin: auto
+  margin: auto;
   flex: 0 0 auto;
 }
 figcaption {
@@ -77,8 +77,6 @@ li {
   line-height: `+this.line_height+`px;
   width: 100%;
   height: `+this.line_height+`px;
-  padding-left: 5px;
-  padding-right: 5px;
 }
 .inputs {
   text-align: right;
@@ -112,7 +110,7 @@ ul {
     this.container.setAttribute("style","width: "+
       (this.canvas.width
       +this.ul_elts[0].offsetWidth
-      +this.ul_elts[1].offsetWidth)
+      +this.ul_elts[1].offsetWidth+20)
       +"px;");
     //DRAWING THINGS ON THE CANVAS
     this.computePoints();
